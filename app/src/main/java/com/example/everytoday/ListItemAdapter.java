@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class ListItemAdapter extends BaseAdapter {
             @Override
             public boolean onLongClick(View v) {
                 removeItem(listItem);
+                Toast.makeText(context, goalStr.getText().toString() + "이 삭제 되었습니다.", Toast.LENGTH_LONG).show();
                 deleteData(goalStr.getText().toString());
                 return false;
             }
