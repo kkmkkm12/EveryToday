@@ -6,26 +6,18 @@ import static com.example.everytoday.DBOpenHelper.GOAL;
 import static com.example.everytoday.DBOpenHelper.TABLE_NAME;
 import static com.example.everytoday.DBOpenHelper._ID;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.example.everytoday.DBOpenHelper;
-import com.example.everytoday.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,7 +32,6 @@ public class MainFragment extends Fragment {
     private TextView mainPercent;
     private Thread thread;
     private int printPercent = 0;
-    private boolean threadState = true;
 
     private static final String DB_NAME = "MyDB";
     private static final int DB_VERSION = 1;
@@ -197,5 +188,12 @@ public class MainFragment extends Fragment {
         super.onResume();
         // 프래그먼트가 다시 화면에 나타날 때 스레드를 다시 시작
         isThreadRunning = true;
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // 프래그먼트의 뷰가 제거될 때 핸들러와 스레드를 해제
+        handler.removeCallbacksAndMessages(null);
     }
 }

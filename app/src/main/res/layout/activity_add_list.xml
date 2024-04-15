@@ -14,7 +14,7 @@
         android:textSize="20sp"
         android:layout_margin="10dp"
         android:background="@color/blue"
-        android:textColor="#FFFFFF"/>
+        android:textColor="@color/white"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
