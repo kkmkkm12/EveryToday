@@ -2,14 +2,20 @@
 
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/free_icon"
+        android:icon="@drawable/baseline_adjust_24"
+        android:enabled="true"
         android:title="달성률" />
 
     <item
         android:id="@+id/nav_dashboard"
+        android:icon="@drawable/baseline_add_task_24"
+        android:enabled="true"
+        android:checked="true"
         android:title="목표" />
 
     <item
         android:id="@+id/nav_notifications"
+        android:icon="@drawable/baseline_account_balance_wallet_24"
+        android:enabled="true"
         android:title="돌아보기" />
 </menu>
