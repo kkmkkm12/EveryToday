@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,12 +40,15 @@ public class MainFragment extends Fragment {
     private TextView mainPercent;
     private Thread thread;
     private int printPercent = 0;
+    private boolean threadState = true;
 
     private static final String DB_NAME = "MyDB";
     private static final int DB_VERSION = 1;
     private DBOpenHelper openHelper;
 
     private Handler handler;
+
+    private boolean isThreadRunning = true;
 
     @Nullable
     @Override
@@ -81,34 +85,7 @@ public class MainFragment extends Fragment {
             printPercent = (select_count * 100) / total_count;
         }
 
-        thread = new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                final int[] i = {-1};
-                int sleepping = 20;
-
-                while(i[0] < printPercent){
-                    try{
-                        sleep(sleepping);
-                    }
-                    catch (InterruptedException e){
-                        e.printStackTrace();
-                    }
-                    i[0]++;
-                    if(printPercent - 10 <= i[0])
-
-                        sleepping += 15;
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mainPercent.setText(i[0] + "%");
-                        }
-                    });
-                }
-            }
-        };
-        thread.start();
+        threadStart();
 
         startUpdateTime();
     }
@@ -174,5 +151,51 @@ public class MainFragment extends Fragment {
             count++;
         }
         return count;
+    }
+
+    private void threadStart(){
+        thread = new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                final int[] i = {-1};
+                int sleepping = 20;
+
+                while(isThreadRunning && i[0] < printPercent){
+                    try{
+                        sleep(sleepping);
+                    }
+                    catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                    i[0]++;
+                    if(printPercent - 10 <= i[0])
+
+                        sleepping += 15;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainPercent.setText(i[0] + "%");
+                        }
+
+                    });
+                }
+            }
+        };
+        thread.start();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // 프래그먼트가 화면에서 사라지면 스레드를 중지
+        isThreadRunning = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 프래그먼트가 다시 화면에 나타날 때 스레드를 다시 시작
+        isThreadRunning = true;
     }
 }

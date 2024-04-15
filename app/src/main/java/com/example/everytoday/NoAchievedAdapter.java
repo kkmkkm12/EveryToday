@@ -26,7 +26,7 @@ public class NoAchievedAdapter extends BaseAdapter {
 
         Button noAchievedButton = convertView.findViewById(R.id.goalCheckButton);
         noAchievedButton.setText(listItem.getGoalStr());
-        noAchievedButton.setBackgroundColor(Color.parseColor("#CCCCCC"));
+        noAchievedButton.setBackgroundColor(Color.parseColor("#FF9999"));
 
         notifyDataSetChanged();
         return convertView;

@@ -31,6 +31,7 @@ public class CalenderFragment extends Fragment {
     private AchievedAdapter achievedAdapter;
     private NoAchievedAdapter noAchievedAdapter;
     private TextView calendarPercent;
+    private TextView monthPercent;
 
     private static final String DB_NAME = "MyDB";
     private static final int DB_VERSION = 1;
@@ -51,6 +52,7 @@ public class CalenderFragment extends Fragment {
         achievedGoalListView = view.findViewById(R.id.AchievedGoal);
         noAchievedGoalListView = view.findViewById(R.id.noAchievedGoal);
         calendarPercent = view.findViewById(R.id.calenderPercent);
+        monthPercent = view.findViewById(R.id.ymd);
 
         achievedAdapter = new AchievedAdapter(); // 어댑터 생성
         noAchievedAdapter = new NoAchievedAdapter();
@@ -60,13 +62,31 @@ public class CalenderFragment extends Fragment {
 
         int createSCount = 0;
         int createTCount = 0;
+
+        int monthSCount = 0;
+        int monthTCount = 0;
         Calendar selectedDate = Calendar.getInstance();
 
         // 선택된 날짜를 지정된 형식의 문자열로 변환합니다.
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String formattedDate = format.format(selectedDate.getTime());
 
-        Cursor cursor = readDB(formattedDate);
+        SimpleDateFormat ymFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+        String ymDate = ymFormat.format(selectedDate.getTime());
+
+        Cursor cursor = monthReadDB(ymDate, false);
+        monthTCount = countFunc(cursor);
+        cursor = monthReadDB(ymDate, true);
+        monthSCount = countFunc(cursor);
+        if(monthTCount != 0 && monthSCount != 0){
+            monthPercent.setText(ymDate + " 달성률 : " + ((monthSCount * 100) / monthTCount) + "%");
+        }
+        else if(monthTCount == 0 || monthSCount == 0){
+            monthPercent.setText(ymDate + " 달성률 : 00%");
+        }
+
+
+        cursor = readDB(formattedDate);
         createSCount = displayDB(cursor);
         createTCount = createSCount;
         cursor = noReadDB(formattedDate);
@@ -86,6 +106,9 @@ public class CalenderFragment extends Fragment {
                 int total_count = 0;
                 int select_count = 0;
 
+                int monthSCount = 0;
+                int monthTCount = 0;
+
                 Calendar selectedDate = Calendar.getInstance();
                 selectedDate.set(year, month, dayOfMonth);
 
@@ -93,7 +116,21 @@ public class CalenderFragment extends Fragment {
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 String formattedDate = format.format(selectedDate.getTime());
 
-                Cursor cursor = readDB(formattedDate);
+                SimpleDateFormat ymFormat = new SimpleDateFormat("yyyy-MM", Locale.getDefault());
+                String ymDate = ymFormat.format(selectedDate.getTime());
+
+                Cursor cursor = monthReadDB(ymDate, false);
+                monthTCount = countFunc(cursor);
+                cursor = monthReadDB(ymDate, true);
+                monthSCount = countFunc(cursor);
+                if(monthTCount != 0 && monthSCount != 0){
+                    monthPercent.setText(ymDate + " 달성률 : " + ((monthSCount * 100) / monthTCount) + "%");
+                }
+                else if(monthTCount == 0 || monthSCount == 0){
+                    monthPercent.setText(ymDate + " 달성률 : 00%");
+                }
+
+                cursor = readDB(formattedDate);
                 select_count = displayDB(cursor);
                 total_count = select_count;
                 cursor = noReadDB(formattedDate);
@@ -116,6 +153,21 @@ public class CalenderFragment extends Fragment {
         String[] selectionArgs = { day,  String.valueOf(1) };
         return db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
     }
+    private Cursor monthReadDB(String day, boolean state){
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        String[] from = {_ID, DATE, GOAL, ACHIEVED, };
+        if(!state){
+            String selection = DATE + " LIKE ?";
+            String[] selectionArgs = { day + "%"};
+            return db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        }else{
+            String selection = DATE + " LIKE ? AND " + ACHIEVED + " = ?";
+            String[] selectionArgs = { day + "%", String.valueOf(1) };
+            return db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        }
+
+
+    }
 
     private Cursor noReadDB(String day){
         SQLiteDatabase db = openHelper.getReadableDatabase();
@@ -123,6 +175,13 @@ public class CalenderFragment extends Fragment {
         String selection = DATE + " = ? AND " + ACHIEVED + " = ?";
         String[] selectionArgs = { day,  String.valueOf(0) };
         return db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+    }
+    private int countFunc(Cursor cursor){
+        int count = 0;
+        while(cursor.moveToNext()){
+            count++;
+        }
+        return count;
     }
 
     private int displayDB(Cursor cursor){
