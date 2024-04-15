@@ -64,7 +64,7 @@ public class MainFragment extends Fragment {
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat todayformat = new SimpleDateFormat("MM/dd", Locale.getDefault());
+        SimpleDateFormat todayformat = new SimpleDateFormat("MM월 dd일", Locale.getDefault());
         monthday.setText(todayformat.format(calendar.getTime()));
 
         Cursor cursor = readDB(format.format(calendar.getTime()));
@@ -108,9 +108,9 @@ public class MainFragment extends Fragment {
         String formatSecond = String.format(Locale.getDefault(), "%02d", currentSecond);
         countDown.setText(formatHour + ":" + formatMinute + ":" + formatSecond);
 
-        String ampm = "am ";
+        String ampm = "오전 ";
         if(Integer.parseInt(sdfHour.format(new Date())) >= 12){
-            ampm = "pm ";
+            ampm = "오후 ";
         }
         ampm += String.format("%02d", realHour % 12);
         ampm += ":" + String.format("%02d", realMinute);
