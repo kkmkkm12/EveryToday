@@ -67,9 +67,9 @@ public class MainFragment extends Fragment {
         SimpleDateFormat todayformat = new SimpleDateFormat("MM월 dd일", Locale.getDefault());
         monthday.setText(todayformat.format(calendar.getTime()));
 
-        Cursor cursor = readDB(format.format(calendar.getTime()));
+        Cursor cursor = readDB(format.format(calendar.getTime()), false);
         int total_count = displayDB(cursor);
-        cursor = selectDB(format.format(calendar.getTime()));
+        cursor = readDB(format.format(calendar.getTime()), true);
         int select_count = displayDB(cursor);
         cursor.close();
         if(total_count != 0 && select_count != 0){
@@ -117,21 +117,19 @@ public class MainFragment extends Fragment {
         clock.setText(ampm);
     }
 
-    private Cursor readDB(String currentDay){
+    private Cursor readDB(String currentDay, boolean selectAchieved){
         SQLiteDatabase db = openHelper.getReadableDatabase();
         String[] from = {_ID, DATE, GOAL, ACHIEVED, };
-        String selection = DATE + " = ?";
-        String[] selectionArgs = { currentDay };
-        Cursor cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
-        return cursor;
-    }
-
-    private Cursor selectDB(String currentDay){
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-        String[] from = {_ID, DATE, GOAL, ACHIEVED, };
-        String selection = ACHIEVED + " = ? AND " + DATE + " = ?";
-        String[] selectionArgs = { String.valueOf(1), currentDay };
-        Cursor cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        Cursor cursor;
+        if(!selectAchieved) {
+            String selection = DATE + " = ?";
+            String[] selectionArgs = {currentDay};
+            cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        }else{
+            String selection = ACHIEVED + " = ? AND " + DATE + " = ?";
+            String[] selectionArgs = { String.valueOf(1), currentDay };
+            cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        }
         return cursor;
     }
 

@@ -74,11 +74,6 @@ public class ListItemAdapter extends BaseAdapter {
 
         goalStr.setText(listItem.getGoalStr());
 
-        Cursor cursor = readDB(goalStr.getText().toString());
-        long a = displayDB(cursor);
-
-
-
         if(listItem.getSelect() == 1){
             goalStr.setBackgroundColor(Color.parseColor("#6699FF"));
             updateData(goalStr.getText().toString(), 1);
@@ -89,36 +84,8 @@ public class ListItemAdapter extends BaseAdapter {
             updateData(goalStr.getText().toString(), 0);
             updateData();
         }
-        cursor.close();
-
         return convertView;
     }
-
-    private long displayDB(Cursor cursor){
-        long builder = 0;
-        while(cursor.moveToNext()){
-            long achieved = cursor.getLong(3);
-
-            builder = achieved;
-        }
-        return builder;
-    }
-
-    private Cursor readDB(String btnName){
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-        String[] from = {_ID, DATE, GOAL, ACHIEVED, };
-        String selection = GOAL + " = ? AND " + DATE + " = ?";
-        String[] selectionArgs = { btnName, format.format(calendar.getTime())};
-        Cursor cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
-        return cursor;
-    }
-
-
-
-
-
 
     private void updateData(String Goal, long newSelect) {
         Calendar calendar = Calendar.getInstance();
@@ -132,12 +99,7 @@ public class ListItemAdapter extends BaseAdapter {
         String selection = GOAL + " = ? AND " + DATE + " = ?";
         String[] selectionArgs = {String.valueOf(Goal), format.format(calendar.getTime())};
 
-        int count = db.update(
-                TABLE_NAME,
-                values,
-                selection,
-                selectionArgs
-        );
+        db.update(TABLE_NAME, values, selection, selectionArgs);
     }
 
     private void deleteData(String specificGoal) {

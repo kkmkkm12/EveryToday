@@ -80,7 +80,7 @@ public class GoalListFragment extends Fragment implements GoalListCallback {
             }
         }
         if (cursor != null && cursor.getCount() > 0) {
-            String str = displayDB(cursor).toString();
+            displayDB(cursor);
             cursor.close();
         }
 
@@ -141,17 +141,16 @@ public class GoalListFragment extends Fragment implements GoalListCallback {
         String selection = DATE + " = ?";
         String[] selectionArgs = {currentDay};
         Cursor cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
-        //startManagingCursor(cursor);
         return cursor;
     }
 
     public void percent() {
-        if (totalReadDB() != null) {
-            Cursor cursor = totalReadDB();
+        if (totalReadDB(true) != null) {
+            Cursor cursor = totalReadDB(true);
             int total_count = countDB(cursor);
-            int select_count = countDB(selectReadDB());
-            totalReadDB().close();
-            selectReadDB().close();
+            int select_count = countDB(totalReadDB(false));
+            totalReadDB(true).close();
+            totalReadDB(false).close();
             if (total_count != 0 && select_count != 0) {
                 subPercent.setText(String.valueOf((select_count * 100) / total_count) + "%");
             } else if (total_count == 0 || select_count == 0)
@@ -167,25 +166,21 @@ public class GoalListFragment extends Fragment implements GoalListCallback {
         return count;
     }
 
-    private Cursor totalReadDB() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private Cursor totalReadDB(boolean kind) {
+        Cursor cursor;
         SQLiteDatabase db = openHelper.getReadableDatabase();
         String[] from = {_ID, DATE, GOAL, ACHIEVED,};
-        String selection = DATE + " = ?";
-        String[] selectionArgs = {format.format(calendar.getTime())};
-        Cursor cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
-        return cursor;
-    }
-
-    private Cursor selectReadDB() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-        String[] from = {_ID, DATE, GOAL, ACHIEVED,};
-        String selection = DATE + " = ? AND " + ACHIEVED + " = ?";
-        String[] selectionArgs = {format.format(calendar.getTime()), String.valueOf(1)};
-        Cursor cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        if(kind) {
+            String selection = DATE + " = ?";
+            String[] selectionArgs = {format.format(calendar.getTime())};
+            cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        }else{
+            String selection = DATE + " = ? AND " + ACHIEVED + " = ?";
+            String[] selectionArgs = {format.format(calendar.getTime()), String.valueOf(1)};
+            cursor = db.query(TABLE_NAME, from, selection, selectionArgs, null, null, _ID + " " + "ASC");
+        }
         return cursor;
     }
 
